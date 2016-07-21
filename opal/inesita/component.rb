@@ -5,6 +5,9 @@ module Inesita
     include ComponentProperties
     include ComponentVirtualDomExtension
 
+    attr_accessor :render_component
+    attr_accessor :is_leaf
+
     def init; end
 
     def render
@@ -29,6 +32,11 @@ module Inesita
     end
 
     def render_virtual_dom
+      if comp = @root_component.render_component
+        if comp != self && is_leaf
+          return @__virtual_nodes__
+        end
+      end
       @cache_component_counter = 0
       @__virtual_nodes__ = []
       render
@@ -39,9 +47,10 @@ module Inesita
       end
     end
 
-    def render!
+    def render!(component=nil)
       Browser.animation_frame do
         if @root_component
+          @root_component.render_component = component
           @root_component.render_if_root
         end
       end
